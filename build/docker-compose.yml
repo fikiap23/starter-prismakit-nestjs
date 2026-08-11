@@ -1,0 +1,131 @@
+services:
+  starter-prismakit-dev:
+    container_name: starter-prismakit-dev
+    build:
+      context: ../
+      dockerfile: ./build/Dockerfile
+    command:
+      ['sh', '-c', 'chmod +x ./build/entrypoint.sh && ./build/entrypoint.sh']
+    ports:
+      - ${PORT_BE:-3000}:3000
+    environment:
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL_DEV}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_EMAIL_SEED: ${ADMIN_EMAIL_SEED}
+      ADMIN_PASSWORD_SEED: ${ADMIN_PASSWORD_SEED}
+      SWAGGER_USERNAME: ${SWAGGER_USERNAME}
+      SWAGGER_PASSWORD: ${SWAGGER_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST:-starter-prismakit-redis-dev}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PREFIX: ${REDIS_PREFIX:-starter}
+      REDIS_DEFAULT_TTL: ${REDIS_DEFAULT_TTL:-300}
+      CACHE_DEBUG: ${CACHE_DEBUG:-false}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-starter-prismakit-minio-dev}
+      MINIO_PORT: ${MINIO_ENDPOINT_PORT:-9000}
+      MINIO_USE_SSL: ${MINIO_USE_SSL:-false}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-app}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-apppassword}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost:9000}
+      MINIO_PRESIGN_ENDPOINT: ${MINIO_PRESIGN_ENDPOINT:-}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-starter}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+    volumes:
+      - ../:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      starter-prismakit-database-postgres-dev:
+        condition: service_healthy
+      starter-prismakit-redis-dev:
+        condition: service_healthy
+      starter-prismakit-minio-dev:
+        condition: service_healthy
+    networks:
+      - starter-network
+    restart: unless-stopped
+
+  starter-prismakit-database-postgres-dev:
+    container_name: starter-prismakit-database-postgres-dev
+    image: postgres:16-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - starter-postgres-dev-data:/var/lib/postgresql/data
+    networks:
+      - starter-network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  starter-prismakit-redis-dev:
+    container_name: starter-prismakit-redis-dev
+    image: redis:7-alpine
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - starter-redis-dev-data:/data
+    networks:
+      - starter-network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  starter-prismakit-redis-commander-dev:
+    container_name: starter-prismakit-redis-commander-dev
+    image: rediscommander/redis-commander:latest
+    ports:
+      - '${PORT_REDIS_COMMANDER:-8081}:8081'
+    environment:
+      REDIS_HOSTS: local:${REDIS_HOST:-starter-prismakit-redis-dev}:${REDIS_PORT:-6379}
+      HTTP_USER: ${REDIS_COMMANDER_HTTP_USER:-admin}
+      HTTP_PASSWORD: ${REDIS_COMMANDER_HTTP_PASSWORD:-admin}
+    depends_on:
+      starter-prismakit-redis-dev:
+        condition: service_healthy
+    networks:
+      - starter-network
+    restart: unless-stopped
+
+  starter-prismakit-minio-dev:
+    container_name: starter-prismakit-minio-dev
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    command: server /data --console-address ':9001'
+    ports:
+      - '${MINIO_PORT:-9000}:9000'
+      - '${MINIO_CONSOLE_PORT:-9001}:9001'
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-app}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-apppassword}
+    volumes:
+      - starter-minio-dev-data:/data
+    networks:
+      - starter-network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  starter-postgres-dev-data:
+  starter-redis-dev-data:
+  starter-minio-dev-data:
+
+networks:
+  starter-network:
+    external: true

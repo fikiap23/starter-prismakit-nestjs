@@ -1,0 +1,52 @@
+services:
+  starter-prismakit-database-postgres-migrate:
+    container_name: starter-prismakit-database-postgres-migrate
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-starter_migrate}
+    ports:
+      - '5433:5432'
+    volumes:
+      - starter-postgres-migrate-data:/var/lib/postgresql/data
+    networks:
+      - starter-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-starter_migrate}',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  starter-prismakit-migrate:
+    container_name: starter-prismakit-migrate
+    build:
+      context: ../
+      dockerfile: ./build/Dockerfile
+    working_dir: /usr/src/app
+    command: ['sh', '-c', 'chmod +x ./build/migrate.sh && ./build/migrate.sh']
+    env_file:
+      - build/.env.migrate
+    environment:
+      DATABASE_URL: ${DATABASE_URL_MIGRATE}
+    volumes:
+      - ../:/usr/src/app
+    depends_on:
+      starter-prismakit-database-postgres-migrate:
+        condition: service_healthy
+    networks:
+      - starter-network
+    restart: 'no'
+
+volumes:
+  starter-postgres-migrate-data:
+
+networks:
+  starter-network:
+    external: true

@@ -1,0 +1,9 @@
+node_modules
+build/compile
+src/generated
+.git
+coverage
+*.log
+build/.env
+build/.env.production
+build/.env.migrate
