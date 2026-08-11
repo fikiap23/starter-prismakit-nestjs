@@ -62,13 +62,12 @@ import { defineRepo } from '../../../infrastructure/prisma/define-repo';
 
 const DAY = 86_400;
 
-export const UserRepository = defineRepo({
+export class UserRepository extends defineRepo({
   model: 'user',
   scalarFields: Prisma.UserScalarFieldEnum,
   cache: { ttl: DAY, nullTtl: 60, sensitiveFields: ['password'] },
   lock: true,
-});
-export interface UserRepository extends InstanceType<typeof UserRepository> {}
+}) {}
 ```
 
 Escape hatches (do not use as the app default):

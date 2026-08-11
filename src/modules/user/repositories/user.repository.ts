@@ -2,7 +2,7 @@ import { Prisma } from 'src/infrastructure/prisma/prisma-client';
 import { defineAppRepo } from 'src/infrastructure/prisma/define-app-repo';
 import { DAY } from 'src/common/constants';
 
-export const UserRepository = defineAppRepo({
+export class UserRepository extends defineAppRepo({
   model: 'user',
   scalarFields: Prisma.UserScalarFieldEnum,
   cache: {
@@ -13,5 +13,4 @@ export const UserRepository = defineAppRepo({
       getFirst: { enabled: false },
     },
   },
-});
-export interface UserRepository extends InstanceType<typeof UserRepository> {}
+}) {}

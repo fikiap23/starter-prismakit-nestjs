@@ -15,7 +15,7 @@ export const defineAppRepo = createDefineRepo<Prisma.TypeMap>();
 import { Prisma } from 'src/infrastructure/prisma/prisma-client';
 import { defineAppRepo } from 'src/infrastructure/prisma/define-app-repo';
 
-export const ProductRepository = defineAppRepo({
+export class ProductRepository extends defineAppRepo({
   model: 'product',
   scalarFields: Prisma.ProductScalarFieldEnum,
   cache: {
@@ -23,17 +23,16 @@ export const ProductRepository = defineAppRepo({
     defaultSetCache: true,
     nullTtl: 60,
   },
-});
-export interface ProductRepository extends InstanceType<
-  typeof ProductRepository
-> {}
+}) {}
 ```
 
-`interface … extends InstanceType<typeof Repo>` infers cache fields from the `cache` option. A same-name `type` alias collapses to `any` in the IDE. Import `Prisma` from `src/infrastructure/prisma/prisma-client`, never `@prisma/client`.
+Omit `cache` when the model should not be cached. `setCache` / `invalidateCache` then disappear from the type. Import `Prisma` from `src/infrastructure/prisma/prisma-client`, never `@prisma/client`.
 
 Composite `@@id` and `@id` come from schema meta — do not pass `primaryKey` unless you are overriding it.
 
 Relation field names (`images`, `parent`) resolve to registry keys from schema meta. No alias map is needed.
+
+Use `export class … extends defineAppRepo({…}) {}` (not `const`). A class declaration is the instance type Nest injects; `export const` cannot be used as a type.
 
 ## Checklist
 

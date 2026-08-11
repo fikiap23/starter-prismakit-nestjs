@@ -2,7 +2,7 @@ import { Prisma } from 'src/infrastructure/prisma/prisma-client';
 import { defineAppRepo } from 'src/infrastructure/prisma/define-app-repo';
 import { DAY, HOUR } from 'src/common/constants';
 
-export const ProductRepository = defineAppRepo({
+export class ProductRepository extends defineAppRepo({
   model: 'product',
   scalarFields: Prisma.ProductScalarFieldEnum,
   cache: {
@@ -21,7 +21,4 @@ export const ProductRepository = defineAppRepo({
       totalTimeoutMs: 3000,
     },
   },
-});
-export interface ProductRepository extends InstanceType<
-  typeof ProductRepository
-> {}
+}) {}

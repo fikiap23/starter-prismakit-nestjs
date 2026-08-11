@@ -2,7 +2,7 @@ import { Prisma } from 'src/infrastructure/prisma/prisma-client';
 import { defineAppRepo } from 'src/infrastructure/prisma/define-app-repo';
 import { DAY } from 'src/common/constants';
 
-export const FileAssetRepository = defineAppRepo({
+export class FileAssetRepository extends defineAppRepo({
   model: 'fileAsset',
   scalarFields: Prisma.FileAssetScalarFieldEnum,
   cache: {
@@ -11,7 +11,4 @@ export const FileAssetRepository = defineAppRepo({
     nullTtl: 60,
   },
   lock: 'file_assets',
-});
-export interface FileAssetRepository extends InstanceType<
-  typeof FileAssetRepository
-> {}
+}) {}
