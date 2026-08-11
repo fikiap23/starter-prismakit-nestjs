@@ -23,25 +23,25 @@ make exec
 npx prisma db seed
 ```
 
-Login: `admin@example.com` / `admin123!`
+Login: `admin@gmail.com` / `admin123!`
 
 Local without Docker: copy `build/.env.example` to `.env`, point `DATABASE_URL` / Redis / MinIO at localhost, then `npm install && npx prisma generate && npm run start:dev`.
 
 ## Feature map
 
-| Endpoint | PrismaKit demo |
-|----------|----------------|
-| `POST /auth/register` · `POST /auth/login` | JWT; User `withPassword` is never cached |
-| `GET /users/me` | compose Profile 1:1 |
-| `GET /categories` | self-relation + `cacheTags` |
-| `GET /products` · `GET /products/:id` | paginate TTL, stampede, nested compose |
-| `PATCH /products/:id` | tagged invalidation |
-| `POST /admin/products/bulk-deactivate` | `updateMany` |
-| `POST /products/:id/tags` | composite PK `createMany skipDuplicates` |
-| `PUT /cart/items` · `DELETE /cart` | composite PK `upsert` / `deleteMany` |
-| `POST /checkout` | `execTx` + `FOR UPDATE` + `afterCommit` |
-| `PUT /coupons/:code` | `upsert` by unique `code` |
-| `POST /files` · `POST /files/:id/confirm` · `GET /files/:id/download` | MinIO presign |
+| Endpoint                                                              | PrismaKit demo                           |
+| --------------------------------------------------------------------- | ---------------------------------------- |
+| `POST /auth/register` · `POST /auth/login`                            | JWT; User `withPassword` is never cached |
+| `GET /users/me`                                                       | compose Profile 1:1                      |
+| `GET /categories`                                                     | self-relation + `cacheTags`              |
+| `GET /products` · `GET /products/:id`                                 | paginate TTL, stampede, nested compose   |
+| `PATCH /products/:id`                                                 | tagged invalidation                      |
+| `POST /admin/products/bulk-deactivate`                                | `updateMany`                             |
+| `POST /products/:id/tags`                                             | composite PK `createMany skipDuplicates` |
+| `PUT /cart/items` · `DELETE /cart`                                    | composite PK `upsert` / `deleteMany`     |
+| `POST /checkout`                                                      | `execTx` + `FOR UPDATE` + `afterCommit`  |
+| `PUT /coupons/:code`                                                  | `upsert` by unique `code`                |
+| `POST /files` · `POST /files/:id/confirm` · `GET /files/:id/download` | MinIO presign                            |
 
 ## MinIO flow
 
@@ -54,14 +54,14 @@ See [`docs/STORAGE.md`](docs/STORAGE.md).
 
 ## Makefile
 
-| Target | What |
-|--------|------|
-| `make network` | create `starter-network` |
-| `make up` / `down` / `logs` / `exec` | dev compose |
-| `make up-prod` / `build-prod` | production compose |
-| `make up-migrate` | isolated migrate job |
-| `make cache-flush` | Redis `FLUSHDB` |
-| `make cache-keys MODEL=product` | scan `starter:repo:product:*` |
+| Target                               | What                          |
+| ------------------------------------ | ----------------------------- |
+| `make network`                       | create `starter-network`      |
+| `make up` / `down` / `logs` / `exec` | dev compose                   |
+| `make up-prod` / `build-prod`        | production compose            |
+| `make up-migrate`                    | isolated migrate job          |
+| `make cache-flush`                   | Redis `FLUSHDB`               |
+| `make cache-keys MODEL=product`      | scan `starter:repo:product:*` |
 
 ## Tests
 
