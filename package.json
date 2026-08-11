@@ -32,7 +32,7 @@
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@prismakit/core": "3.0.2",
-    "@prismakit/nestjs": "3.0.4",
+    "@prismakit/nestjs": "3.0.5",
     "@prismakit/redis": "3.0.2",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",

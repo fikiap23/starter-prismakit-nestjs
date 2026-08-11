@@ -50,6 +50,7 @@ const prismakitLogger = new Logger('PrismaKit');
         return {
           prisma: prisma as unknown as PrismaClientLike,
           cache: redis,
+          schemaPath: 'prisma/schema.prisma',
           validateCompose: false,
           autoRegisterModels: true,
           compose: {
