@@ -194,7 +194,7 @@ Repository `cache` is the source of truth. Omit `cacheModels` (fail-open). Pass 
 |--------|-----|
 | `cacheModels` | Optional extra allowlist (omit — repo `cache` is enough) |
 | `validateCompose: true` | Assert compose-safe selects on boot |
-| `strictCachedRepos` | Fail boot if a `cache` repo class is not in Nest `providers` (default `true`) |
+| `strictCachedRepos` | Fail boot if a `cache` repo is missing from `providers`, or listed in two modules (default `true`) |
 | `compose` | `{ maxDepth, parallel, setCache }` |
 | `telemetry` | `{ enabled: true, onEvent }` |
 | `queryLog` | `{ slowThreshold, onSlowQuery }` — enables telemetry |
