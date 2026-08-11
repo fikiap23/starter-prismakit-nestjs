@@ -16,7 +16,7 @@ NestJS e-commerce starter that demos **PrismaKit 2.2.3**: cache-aside, auto-comp
 | MinIO | RELEASE.2025-09-07 |
 | Node.js | 20+ |
 
-Auth is **slim JWT** (login/register). No RBAC, BullMQ, or branch scoping.
+Auth is **slim JWT** (login/register). No RBAC, job queues, or branch scoping. HTTP routes have **no** `/api` or `/v1` prefix.
 
 ## Folder Structure
 
@@ -37,7 +37,7 @@ build/                         # Docker + compiled output (build/compile/)
 tools/                         # codegen-repos, validate-select-compose
 ```
 
-Per feature (clone of myrpc-be Vendor):
+Per feature:
 
 ```
 modules/<feature>/
@@ -59,7 +59,7 @@ Controller  →  Service  →  Helper  →  Repository  →  Prisma / Redis
 
 | Layer | Rules |
 |-------|--------|
-| **Controller** | HTTP, guards, Swagger, `formatResponse`. No business logic. |
+| **Controller** | HTTP, guards, Swagger, `formatResponse` / `errorHandler`. No business logic. |
 | **Service** | **Only** `handle*` methods. Transactions via `TransactionService.execTx`. |
 | **Helper** | `@Injectable` `*.helper.ts`. Never inject `PrismaService`. |
 | **Repository** | `defineAppRepo` only. Nested `select`, never Prisma `include`. |
@@ -85,6 +85,16 @@ await this.tx.execTx(
 );
 ```
 
+## Adding a feature
+
+1. Scaffold with `npm run gen:module -- <name> --cache` (or copy an existing module).
+2. Define the repo with `defineAppRepo` — see [`docs/CREATE_PRISMA_REPOSITORY.md`](docs/CREATE_PRISMA_REPOSITORY.md).
+3. Register the class in the feature module `providers` (`exports` if other modules need it).
+4. If the repo has `cache`, add the model key to `cacheModels` in `app.module.ts`.
+5. Put selects in `types/select-*.type.ts` (presets: `minimal` / `general`). Filters in `types/where-*.type.ts`.
+6. Controllers: `@Res()` + `formatResponse` / `errorHandler`. Use `@SwaggerEndpoint`. Guard with `JwtGuard` when auth is required.
+7. Run `npm run validate:compose` after nested selects.
+
 ## Import Paths
 
 Use `src/` aliases. Prisma types: `src/infrastructure/prisma/prisma-client`, **not** `@prisma/client`.
@@ -93,11 +103,11 @@ Do not edit `src/generated/prisma/`.
 
 ## PrismaKit wiring
 
-- One binder: `defineAppRepo = createDefineRepo<Prisma.TypeMap>()`
+- One binder: `defineAppRepo = createDefineRepo<Prisma.TypeMap>()` in `src/infrastructure/prisma/define-app-repo.ts`
 - `schemaPath: 'prisma/schema.prisma'`
 - `autoRegisterModels: true` (Profile, ProductImage)
 - `compose: { maxDepth: 6, parallel: true, setCache: true }`
-- `cacheModels` allowlist (see `docs/CACHE.md`)
+- `cacheModels` allowlist (see [`docs/CACHE.md`](docs/CACHE.md))
 - `queryLog.slowThreshold: 500` + `telemetry.onEvent` → Nest `Logger`
 - ESLint `prismakit.configs.recommended`; overrides only for `app.module.ts` + `infrastructure/prisma/**`
 
@@ -116,7 +126,7 @@ Do not edit `src/generated/prisma/`.
 | CartItem | composite PK, `upsert` / `deleteMany` |
 | Stock | `lock: true`, `FOR UPDATE` in `execTx` |
 | Order + OrderItem | checkout `execTx` + `createMany` + `afterCommit` |
-| Coupon | `upsert` by `code` |
+| Coupon | `upsert` by unique `code` |
 | AuditLog | uncached — types reject `setCache` |
 
 ## Scripts

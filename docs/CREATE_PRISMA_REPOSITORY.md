@@ -34,9 +34,9 @@ Import `Prisma` from `src/infrastructure/prisma/prisma-client`, never `@prisma/c
 
 ## Checklist
 
-1. Create via `yarn gen:module <name> --cache` or by hand.
+1. Create via `npm run gen:module -- <name> --cache` or by hand.
 2. Register the repository class in the feature module `providers` (and `exports` if other modules need it).
 3. If using `cache`, add the model key to `cacheModels` in `app.module.ts`.
 4. Prefer `lock: true` or `lock: '<@@map>'` when any call uses `lock: { mode }`.
 5. Nested `select` is composed by PrismaKit — do not use Prisma `include`.
-6. Run `yarn validate:compose` after adding nested selects.
+6. Run `npm run validate:compose` after adding nested selects.

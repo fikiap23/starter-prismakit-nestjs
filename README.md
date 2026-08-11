@@ -1,8 +1,8 @@
 # starter-prismakit-nestjs
 
-NestJS 11 e-commerce starter for **[PrismaKit](https://github.com/fikiap23/prismakit) 2.2.3**: cache-aside, auto-compose, row locks, `execTx`, composite PKs, and MinIO presigned PUT/GET.
+NestJS 11 e-commerce starter for **PrismaKit 2.2.3**: cache-aside, auto-compose, row locks, `execTx`, composite PKs, and MinIO presigned PUT/GET.
 
-Layout clones [myrpc-be](https://github.com/fikiap23/myrpc) conventions (Controller → Service → Helper → Repository) without RPC/BullMQ/RBAC.
+Layering: Controller → Service → Helper → Repository. Auth is slim JWT (login/register). No RBAC or job queues.
 
 ## Quick start
 
