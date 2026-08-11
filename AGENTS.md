@@ -103,7 +103,7 @@ Do not edit `src/generated/prisma/`.
 
 - One binder: `defineAppRepo = createDefineRepo<Prisma.TypeMap>()` in `src/infrastructure/prisma/define-app-repo.ts`
 - `schemaPath` defaults to `prisma/schema.prisma` (relation fields resolve from schema meta)
-- `autoRegisterModels: true` (Profile, ProductImage)
+- `autoRegisterModels: true` (ProductImage; Profile is an explicit cached provider)
 - `compose: { maxDepth: 6, parallel: true, setCache: true }`
 - Repo `cache` config is the source of truth (no `cacheModels` allowlist)
 - `queryLog.slowThreshold: 500` + `telemetry.onEvent` → Nest `Logger`
@@ -114,7 +114,7 @@ Do not edit `src/generated/prisma/`.
 | Model | Feature |
 |-------|---------|
 | User | `sensitiveFields`, presets, `getFirst` no-cache |
-| Profile | compose to-one reverse 1:1 |
+| Profile | compose to-one reverse 1:1, cached `getMany` |
 | Category | self-relation, `cacheTags` |
 | Product | `defaultSetCache`, paginate TTL, stampede, nested compose |
 | ProductImage | compose-only |

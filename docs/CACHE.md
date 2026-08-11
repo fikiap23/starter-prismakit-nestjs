@@ -17,7 +17,7 @@ Service → Repository → CacheAdapter (RedisService) → Prisma → PostgreSQL
 
 A model caches if its repository sets `cache`. `auditLog` and `orderItem` omit `cache` — TypeScript then omits `setCache` / `invalidateCache`.
 
-`ProductImage` and `Profile` are compose-only (`autoRegisterModels: true`).
+`ProductImage` is compose-only (`autoRegisterModels: true`, no cache). `Profile` is a Nest provider with `cache` so nested compose `getMany` is cached under `starter:repo:profile:q:…`.
 
 ## Invalidation
 
