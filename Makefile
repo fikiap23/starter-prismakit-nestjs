@@ -12,7 +12,7 @@ CONTAINER_DEV        := starter-prismakit-dev
 CONTAINER_PROD       := starter-prismakit-production
 CONTAINER_MIGRATE    := starter-prismakit-migrate
 
-.PHONY: up down restart logs exec pull
+.PHONY: up down restart rebuild logs exec pull
 up:
 	docker compose $(COMPOSE_DEV) up -d
 	docker logs -f $(CONTAINER_DEV)
@@ -22,6 +22,13 @@ down:
 
 restart:
 	docker restart $(CONTAINER_DEV)
+	docker logs -f $(CONTAINER_DEV)
+
+# Rebuild the app image and replace the anonymous node_modules volume.
+# Named volumes (postgres / redis / minio) are left intact.
+rebuild:
+	docker compose $(COMPOSE_DEV) build $(CONTAINER_DEV)
+	docker compose $(COMPOSE_DEV) up -d --force-recreate --renew-anon-volumes $(CONTAINER_DEV)
 	docker logs -f $(CONTAINER_DEV)
 
 logs:

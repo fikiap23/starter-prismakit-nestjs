@@ -11,6 +11,13 @@ done
 
 echo "PostgreSQL is up!"
 
+echo "Sync node_modules with package-lock.json"
+LOCK_HASH=$(md5sum package-lock.json | awk '{print $1}')
+if [ ! -f node_modules/.package-lock-hash ] || [ "$(cat node_modules/.package-lock-hash)" != "$LOCK_HASH" ]; then
+  npm ci
+  echo "$LOCK_HASH" > node_modules/.package-lock-hash
+fi
+
 echo "Generate Prisma Client"
 npx prisma generate
 . ./build/fix-generated-ownership.sh

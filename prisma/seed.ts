@@ -10,7 +10,7 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL_SEED ?? 'admin@example.com';
+  const email = process.env.ADMIN_EMAIL_SEED ?? 'admin@gmail.com';
   const password = hashSync(process.env.ADMIN_PASSWORD_SEED ?? 'admin123!', 12);
 
   const admin = await prisma.user.upsert({
@@ -114,7 +114,9 @@ async function main() {
     update: { type: 'PERCENT', amount: 10, isActive: true },
   });
 
-  console.log(`Seeded admin ${admin.email}, 2 categories, 3 products, 1 coupon`);
+  console.log(
+    `Seeded admin ${admin.email}, 2 categories, 3 products, 1 coupon`,
+  );
 }
 
 main()
