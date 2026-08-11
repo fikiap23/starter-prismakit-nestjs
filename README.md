@@ -63,6 +63,14 @@ See [`docs/STORAGE.md`](docs/STORAGE.md).
 | `make cache-flush`                   | Redis `FLUSHDB`               |
 | `make cache-keys MODEL=product`      | scan `starter:repo:product:*` |
 
+## Lint
+
+```bash
+npm run lint:check
+```
+
+Covers all `src/**/*.ts`. In Cursor, install the recommended **ESLint** extension so `prismakit/*` errors show as squiggles in the editor (Problems panel).
+
 ## Tests
 
 ```bash

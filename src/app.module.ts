@@ -53,6 +53,7 @@ const prismakitLogger = new Logger('PrismaKit');
           schemaPath: 'prisma/schema.prisma',
           validateCompose: false,
           autoRegisterModels: true,
+          strictCachedRepos: true,
           compose: {
             maxDepth: 6,
             parallel: true,
