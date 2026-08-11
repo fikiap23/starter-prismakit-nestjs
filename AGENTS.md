@@ -4,13 +4,13 @@ Guide for AI coding agents. User docs: [`README.md`](README.md) · Cache: [`docs
 
 ## Project Overview
 
-NestJS e-commerce starter that demos **PrismaKit 2.2.3**: cache-aside, auto-compose, row locks, `execTx` + `afterCommit`, composite PKs, MinIO presign.
+NestJS e-commerce starter that demos **PrismaKit 3.0.0**: cache-aside, auto-compose, row locks, `execTx` + `afterCommit`, composite PKs, MinIO presign.
 
 | Component | Version |
 |-----------|---------|
 | NestJS | 11 |
 | Prisma | 7 (`prisma-client` + `@prisma/adapter-pg`) |
-| PrismaKit | 2.2.3 |
+| PrismaKit | 3.0.0 |
 | PostgreSQL | 16 |
 | Redis | 7 |
 | MinIO | RELEASE.2025-09-07 |
@@ -34,7 +34,6 @@ src/
 └── modules/{auth,user,category,product,cart,stock,order,coupon,file-asset,health}/
 prisma/
 build/                         # Docker + compiled output (build/compile/)
-tools/                         # codegen-repos, validate-select-compose
 ```
 
 Per feature:
@@ -90,10 +89,9 @@ await this.tx.execTx(
 1. Scaffold with `npm run gen:module -- <name> --cache` (or copy an existing module).
 2. Define the repo with `defineAppRepo` — see [`docs/CREATE_PRISMA_REPOSITORY.md`](docs/CREATE_PRISMA_REPOSITORY.md).
 3. Register the class in the feature module `providers` (`exports` if other modules need it).
-4. If the repo has `cache`, add the model key to `cacheModels` in `app.module.ts`.
-5. Put selects in `types/select-*.type.ts` (presets: `minimal` / `general`). Filters in `types/where-*.type.ts`.
-6. Controllers: `@Res()` + `formatResponse` / `errorHandler`. Use `@SwaggerEndpoint`. Guard with `JwtGuard` when auth is required.
-7. Run `npm run validate:compose` after nested selects.
+4. Put selects in `types/select-*.type.ts` (presets: `minimal` / `general`). Filters in `types/where-*.type.ts`.
+5. Controllers: `@Res()` + `formatResponse` / `errorHandler`. Use `@SwaggerEndpoint`. Guard with `JwtGuard` when auth is required.
+6. Run `npm run validate:compose` after nested selects.
 
 ## Import Paths
 
@@ -104,10 +102,10 @@ Do not edit `src/generated/prisma/`.
 ## PrismaKit wiring
 
 - One binder: `defineAppRepo = createDefineRepo<Prisma.TypeMap>()` in `src/infrastructure/prisma/define-app-repo.ts`
-- `schemaPath: 'prisma/schema.prisma'`
+- `schemaPath` defaults to `prisma/schema.prisma` (relation fields resolve from schema meta)
 - `autoRegisterModels: true` (Profile, ProductImage)
 - `compose: { maxDepth: 6, parallel: true, setCache: true }`
-- `cacheModels` allowlist (see [`docs/CACHE.md`](docs/CACHE.md))
+- Repo `cache` config is the source of truth (no `cacheModels` allowlist)
 - `queryLog.slowThreshold: 500` + `telemetry.onEvent` → Nest `Logger`
 - ESLint `prismakit.configs.recommended`; overrides only for `app.module.ts` + `infrastructure/prisma/**`
 
@@ -134,7 +132,6 @@ Do not edit `src/generated/prisma/`.
 ```bash
 npm run start:dev
 npm run gen:module
-npm run codegen:repos
 npm run validate:compose
 npm run seed
 npm test

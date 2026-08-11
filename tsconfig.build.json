@@ -7,7 +7,6 @@
     "test",
     "**/*spec.ts",
     "jest.config.ts",
-    "prisma.config.ts",
-    "tools"
+    "prisma.config.ts"
   ]
 }

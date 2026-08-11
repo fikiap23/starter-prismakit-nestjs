@@ -6,7 +6,6 @@
   "include": [
     "src/**/*",
     "prisma/**/*",
-    "tools/**/*.ts",
     "prisma.config.ts",
     "jest.config.ts"
   ],

@@ -10,28 +10,24 @@ Service → Repository → CacheAdapter (RedisService) → Prisma → PostgreSQL
 
 - Cached repos set `defaultSetCache: true` so user-facing reads cache by default.
 - Opt out with `setCache: false` on auth, uniqueness, JWT validate, and write-path checks.
-- `cacheModels` in `app.module.ts` is a **strict allowlist**.
+- The repository `cache` block is the source of truth — `cacheModels` is omitted (fail-open).
 - Redis fails open — if Redis is down, queries still hit Prisma.
 
-## Allowlist
+## What is cached
 
-Cached models in this starter:
-
-`user`, `category`, `product`, `tag`, `productTag`, `stock`, `cartItem`, `coupon`, `order`, `fileAsset`
-
-`auditLog` and `orderItem` are intentionally uncached — TypeScript omits `setCache` / `invalidateCache`.
+A model caches if its repository sets `cache`. `auditLog` and `orderItem` omit `cache` — TypeScript then omits `setCache` / `invalidateCache`.
 
 `ProductImage` and `Profile` are compose-only (`autoRegisterModels: true`).
 
 ## Invalidation
 
-| Mode | Behavior | Typical use |
-|------|----------|-------------|
-| `'all'` | Entity + query caches | `updateById`, `deleteById` |
-| `'entity'` | Entity cache for id | — |
-| `'queries'` | Query caches | `create` |
-| `'none'` | Skip | Inside `execTx` |
-| `'stale'` | Soft invalidate | — |
+| Mode        | Behavior              | Typical use                |
+| ----------- | --------------------- | -------------------------- |
+| `'all'`     | Entity + query caches | `updateById`, `deleteById` |
+| `'entity'`  | Entity cache for id   | —                          |
+| `'queries'` | Query caches          | `create`                   |
+| `'none'`    | Skip                  | Inside `execTx`            |
+| `'stale'`   | Soft invalidate       | —                          |
 
 Inside transactions: `invalidate: 'none'`, then `invalidateCache` in `afterCommit`.
 

@@ -30,8 +30,7 @@ import { Prisma } from '@prisma/client';
     PrismaKitModule.forRoot({
       prisma: prismaClient,
       cache: new RedisCacheAdapter({ prefix: 'myapp' }),
-      cacheModels: ['user', 'product'],
-      schemaPath: 'prisma/schema.prisma', // Prisma 7; Prisma 5/6: dmmf: Prisma.dmmf
+      schemaPath: 'prisma/schema.prisma', // default; Prisma 5/6: dmmf: Prisma.dmmf
       validateCompose: true,
       compose: { maxDepth: 6, parallel: true, setCache: true },
     }),
@@ -42,7 +41,7 @@ export class AppModule {}
 
 `forRootAsync` when cache/URL come from `ConfigService` — see [examples.md](examples.md).
 
-Always load Prisma meta (`dmmf` or `schemaPath`) so auto-compose and `lock: true` resolve FKs/`@@map` without heuristics.
+`schemaPath` defaults to `prisma/schema.prisma`. Always load Prisma meta (`dmmf` or `schemaPath`) so auto-compose and `lock: true` resolve FKs/`@@map` from the schema — no relation-alias map.
 
 ## Factory (one default)
 
@@ -69,7 +68,7 @@ export const UserRepository = defineRepo({
   cache: { ttl: DAY, nullTtl: 60, sensitiveFields: ['password'] },
   lock: true,
 });
-export type UserRepository = InstanceType<typeof UserRepository>;
+export interface UserRepository extends InstanceType<typeof UserRepository> {}
 ```
 
 Escape hatches (do not use as the app default):
@@ -175,7 +174,7 @@ await this.tx.execTx(
 
 When the repo options include `cache`, TypeScript exposes `setCache`, `cacheTags`, mutation `invalidate`/`tags`, and `invalidateCache`. Without `cache`, those fields are omitted — do not pass them.
 
-Production: set `cacheModels` to the same keys that enable `cache` on repositories. Omit = fail-open.
+Repository `cache` is the source of truth. Omit `cacheModels` (fail-open). Pass an allowlist only if you want a second check.
 
 `cache.defaultSetCache: true` makes user-facing reads cache by default; still pass `setCache: false` on auth/uniqueness.
 
@@ -194,7 +193,7 @@ Production: set `cacheModels` to the same keys that enable `cache` on repositori
 
 | Option | Use |
 |--------|-----|
-| `cacheModels` | Strict allowlist of cached model keys |
+| `cacheModels` | Optional extra allowlist (omit — repo `cache` is enough) |
 | `validateCompose: true` | Assert compose-safe selects on boot |
 | `compose` | `{ maxDepth, parallel, setCache }` |
 | `telemetry` | `{ enabled: true, onEvent }` |

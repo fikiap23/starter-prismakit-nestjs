@@ -1,8 +1,5 @@
 import { Prisma } from 'src/infrastructure/prisma/prisma-client';
-import {
-  defineAppRepo,
-  type AppRepo,
-} from 'src/infrastructure/prisma/define-app-repo';
+import { defineAppRepo } from 'src/infrastructure/prisma/define-app-repo';
 import { DAY, HOUR } from 'src/common/constants';
 
 export const ProductRepository = defineAppRepo({
@@ -25,4 +22,6 @@ export const ProductRepository = defineAppRepo({
     },
   },
 });
-export type ProductRepository = AppRepo<'Product', true>;
+export interface ProductRepository extends InstanceType<
+  typeof ProductRepository
+> {}

@@ -13,15 +13,15 @@ Purposes in this starter: `PRODUCT_IMAGE` | `AVATAR`.
 
 ## Config
 
-| Env | Role |
-|-----|------|
-| `MINIO_ENDPOINT` | Internal API host (compose service name in Docker) |
-| `MINIO_PORT` | Internal API port (9000) |
-| `MINIO_USE_SSL` | `true` / `false` |
-| `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` | Credentials |
-| `MINIO_PUBLIC_URL` | Browser-facing base URL |
-| `MINIO_PRESIGN_ENDPOINT` | Optional host used to **sign** PUT URLs for the browser. Empty → `MINIO_PUBLIC_URL` |
-| `MINIO_BUCKET_NAME` | Default `starter` |
+| Env                                     | Role                                                                                |
+| --------------------------------------- | ----------------------------------------------------------------------------------- |
+| `MINIO_ENDPOINT`                        | Internal API host (compose service name in Docker)                                  |
+| `MINIO_PORT`                            | Internal API port (9000)                                                            |
+| `MINIO_USE_SSL`                         | `true` / `false`                                                                    |
+| `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` | Credentials                                                                         |
+| `MINIO_PUBLIC_URL`                      | Browser-facing base URL                                                             |
+| `MINIO_PRESIGN_ENDPOINT`                | Optional host used to **sign** PUT URLs for the browser. Empty → `MINIO_PUBLIC_URL` |
+| `MINIO_BUCKET_NAME`                     | Default `starter`                                                                   |
 
 `StorageService` keeps two MinIO clients: one for cluster-internal `statObject` / `presignedGetObject`, and a presign client whose endpoint is reachable from the browser.
 

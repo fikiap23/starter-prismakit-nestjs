@@ -1,8 +1,5 @@
 import { Prisma } from 'src/infrastructure/prisma/prisma-client';
-import {
-  defineAppRepo,
-  type AppRepo,
-} from 'src/infrastructure/prisma/define-app-repo';
+import { defineAppRepo } from 'src/infrastructure/prisma/define-app-repo';
 
 export const StockRepository = defineAppRepo({
   model: 'stock',
@@ -10,4 +7,4 @@ export const StockRepository = defineAppRepo({
   cache: { ttl: 60 },
   lock: true,
 });
-export type StockRepository = AppRepo<'Stock', true>;
+export interface StockRepository extends InstanceType<typeof StockRepository> {}

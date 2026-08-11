@@ -1,8 +1,5 @@
 import { Prisma } from 'src/infrastructure/prisma/prisma-client';
-import {
-  defineAppRepo,
-  type AppRepo,
-} from 'src/infrastructure/prisma/define-app-repo';
+import { defineAppRepo } from 'src/infrastructure/prisma/define-app-repo';
 import { DAY } from 'src/common/constants';
 
 export const CouponRepository = defineAppRepo({
@@ -10,4 +7,6 @@ export const CouponRepository = defineAppRepo({
   scalarFields: Prisma.CouponScalarFieldEnum,
   cache: { ttl: DAY },
 });
-export type CouponRepository = AppRepo<'Coupon', true>;
+export interface CouponRepository extends InstanceType<
+  typeof CouponRepository
+> {}
