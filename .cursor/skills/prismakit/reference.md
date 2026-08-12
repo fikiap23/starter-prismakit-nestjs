@@ -9,16 +9,18 @@ API surface for `@prismakit/core` 3.x. Read [SKILL.md](SKILL.md) first.
 | `@prismakit/core` | `createRepository`, AutoComposer, locks, pagination, `CacheAdapter` |
 | `@prismakit/redis` | `RedisCacheAdapter` |
 | `@prismakit/memory` | `MemoryCacheAdapter` (tests / local) |
+| `@prismakit/opentelemetry` | Map telemetry → OTel metrics/spans |
 | `@prismakit/cli` | `prismakit generate / validate / skills` |
 | `@prismakit/eslint-plugin` | Repository-only data-access rules |
 
-Node ≥ 20. Install:
+Node ≥ 20. Line **3.2.x**. Install:
 
 ```bash
 pnpm add @prismakit/core
 pnpm add @prismakit/redis ioredis          # optional production cache
 pnpm add -D @prismakit/eslint-plugin @prismakit/cli
 # tests: pnpm add -D @prismakit/memory
+# optional: pnpm add @prismakit/opentelemetry @opentelemetry/api
 ```
 
 ## Factory
@@ -40,7 +42,7 @@ Aliases: `defineRepository`, `createPrismaRepository`.
 | `cache` | `CacheOptions \| true` | `true` → `{ ttl: 86400, sensitiveFields: ['password'] }`. |
 | `lock` | `true \| string \| RepositoryLockConfig` | `true` / client key / Pascal name / `@@map` table. |
 | `schemaPath` | `string` | Lock/schema helpers when global meta is missing. |
-| `primaryKey` | `string \| string[]` | `*ById` + row locks. Default: meta PK or `id`. |
+| `primaryKey` | `string \| string[]` | `*ById` + row locks. Default: meta PK or `id`. Composite → Prisma `a_b: { a, b }` where. |
 | `getDelegate` | `(client) => delegate` | Default `(c) => c[model]`. |
 | `toPayload` | `(data) => payload` | Default identity. Prefer typed factories over this. |
 
@@ -59,6 +61,11 @@ All methods accept optional `tx`. Cached repos also accept cache fields (see bel
 | `getFirst` | `where?`, `select?`, `lock?`, `setCache?`, `cacheTags?` | `T \| null` |
 | `getMany` | `where?`, `select?`, `orderBy?`, `take?`, `skip?`, `lock?`, `setCache?`, `cacheTags?` | `T[]` |
 | `getManyPaginate` | `where?`, `select?`, `orderBy?`, `page?`, `pageSize?`, `setCache?`, `cacheTags?` | `PaginatedResult<T>` |
+| `getManyCursor` | `where?`, `select?`, `orderBy?`, `cursor?`, `take?`, `skip?`, `setCache?`, `cacheTags?` | `CursorPage<T>`; with `cursor`, default `skip: 1` |
+| `count` | `where?`, `select?`, `setCache?`, `cacheTags?` | `{ count: number }` |
+| `exists` | `where?`, `setCache?`, `cacheTags?` | `{ exists: boolean }` |
+| `aggregate` | Prisma aggregate args + `setCache?`, `cacheTags?` | delegate result |
+| `groupBy` | Prisma groupBy args + `setCache?`, `cacheTags?` | delegate result |
 
 `PaginatedResult<T>`:
 
@@ -127,13 +134,15 @@ await repo.invalidateCache({ id?: string; tags?: string[] });
 ### Key schema
 
 ```
-{prefix}:repo:{model}:e:{id}:{method}:{selectHash}
-{prefix}:repo:{model}:q:{method}:{queryHash}
-{prefix}:repo:{model}:e:{id}:__idx
-{prefix}:repo:{model}:e:__idx
-{prefix}:repo:{model}:q:__idx
-{prefix}:repo:{model}:t:{tag}:__idx
+{prefix}:v2:repo:{model}:e:{id}:{method}:{selectHash}
+{prefix}:v2:repo:{model}:q:{method}:{queryHash}
+{prefix}:v2:repo:{model}:e:{id}:__idx
+{prefix}:v2:repo:{model}:e:__idx
+{prefix}:v2:repo:{model}:q:__idx
+{prefix}:v2:repo:{model}:t:{tag}:__idx
 ```
+
+Redis payloads use tagged JSON for `Date`, `BigInt`, `Bytes`, and `Decimal` (`__date`, `__bigint`, …). Bump to v2 keys causes a one-time miss after upgrade.
 
 ### Debug
 
@@ -265,7 +274,7 @@ export default [prismakit.configs.recommended];
 | `prismakit/no-prisma-service-outside-repos` | Inject/reference `PrismaService` / `PrismaClient` outside allowlist |
 | `prismakit/no-direct-prisma-delegate` | `prisma.<model>.*` outside allowlist |
 | `prismakit/require-transaction-service` | `.$transaction` in feature code |
-| `prismakit/require-cached-repo-provider` | Cached repo class missing from Nest `providers` (repo file and feature `*.module.ts`) |
+| `prismakit/require-cached-repo-provider` | Cached repo class missing from Nest `providers` |
 
 Allowed path patterns (forward slashes):
 

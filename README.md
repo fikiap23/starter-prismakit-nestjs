@@ -1,6 +1,6 @@
 # starter-prismakit-nestjs
 
-NestJS 11 e-commerce starter for **PrismaKit 3.0.5**: cache-aside, auto-compose, row locks, `execTx`, composite PKs, and MinIO presigned PUT/GET.
+NestJS 11 e-commerce starter for **PrismaKit 3.2**: cache-aside, auto-compose, row locks, `execTx`, composite PKs, and MinIO presigned PUT/GET.
 
 Layering: Controller → Service → Helper → Repository. Auth is slim JWT (login/register). No RBAC or job queues.
 

@@ -4,13 +4,13 @@ Guide for AI coding agents. User docs: [`README.md`](README.md) · Cache: [`docs
 
 ## Project Overview
 
-NestJS e-commerce starter that demos **PrismaKit 3.0.5**: cache-aside, auto-compose, row locks, `execTx` + `afterCommit`, composite PKs, MinIO presign.
+NestJS e-commerce starter that demos **PrismaKit 3.2**: cache-aside, auto-compose, row locks, `execTx` + `afterCommit`, composite PKs, MinIO presign.
 
 | Component | Version |
 |-----------|---------|
 | NestJS | 11 |
 | Prisma | 7 (`prisma-client` + `@prisma/adapter-pg`) |
-| PrismaKit | 3.0.5 |
+| PrismaKit | 3.2.x |
 | PostgreSQL | 16 |
 | Redis | 7 |
 | MinIO | RELEASE.2025-09-07 |
