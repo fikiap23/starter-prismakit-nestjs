@@ -32,7 +32,7 @@ export class ProductController {
 
   @Get('products')
   @SwaggerEndpoint({
-    summary: 'Paginated catalog (cacheTags + defaultSetCache)',
+    summary: 'Paginated catalog (cacheTags + count meta.activeCount)',
     auth: false,
     pagination: true,
   })
@@ -40,6 +40,30 @@ export class ProductController {
     try {
       const page = await this.products.handleGetManyPaginate(filter);
       return formatResponse(res, HttpStatus.OK, page.data, page.meta);
+    } catch (error) {
+      return errorHandler(res, error);
+    }
+  }
+
+  @Get('products/feed')
+  @SwaggerEndpoint({
+    summary: 'Cursor feed (getManyCursor) for infinite scroll',
+    auth: false,
+  })
+  async feed(
+    @Query('cursor') cursor: string | undefined,
+    @Query('take') take: string | undefined,
+    @Res() res: Response,
+  ) {
+    try {
+      const page = await this.products.handleGetFeed(
+        cursor,
+        take ? Number(take) : 20,
+      );
+      return formatResponse(res, HttpStatus.OK, page.data, {
+        nextCursor: page.nextCursor,
+        hasMore: page.hasMore,
+      });
     } catch (error) {
       return errorHandler(res, error);
     }

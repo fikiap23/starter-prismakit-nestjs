@@ -39,11 +39,10 @@ export class AuthAuthenticateHelper {
   }
 
   async register(dto: RegisterDto) {
-    const existing = await this.users.getFirst({
+    const taken = await this.users.exists({
       where: { email: dto.email },
-      select: getUserSelect('minimal'),
     });
-    if (existing) {
+    if (taken) {
       throw new CustomError({
         statusCode: 409,
         message: 'Email already registered',

@@ -24,27 +24,49 @@ export class ProductService {
 
   async handleGetManyPaginate(filter: FilterProductDto) {
     const { where } = whereProductGetManyPaginate(filter);
-    const result = await this.products.getManyPaginate({
-      where,
-      select: getProductSelect('general'),
-      orderBy: parsePrismaOrderBy<Prisma.ProductOrderByWithRelationInput>(
-        filter.sort,
-        'name',
-      ),
-      page: filter.page,
-      pageSize: filter.pageSize,
-      setCache: true,
-      cacheTags: filter.categoryId
-        ? [`category:${filter.categoryId}`]
-        : undefined,
-    });
+    const [result, totalActive] = await Promise.all([
+      this.products.getManyPaginate({
+        where,
+        select: getProductSelect('general'),
+        orderBy: parsePrismaOrderBy<Prisma.ProductOrderByWithRelationInput>(
+          filter.sort,
+          'name',
+        ),
+        page: filter.page,
+        pageSize: filter.pageSize,
+        setCache: true,
+        cacheTags: filter.categoryId
+          ? [`category:${filter.categoryId}`]
+          : undefined,
+      }),
+      this.products.count({
+        where: { ...where, isActive: true },
+        setCache: true,
+        cacheTags: filter.categoryId
+          ? [`category:${filter.categoryId}`]
+          : undefined,
+      }),
+    ]);
     return {
       ...result,
       meta: {
         ...result.meta,
         sort: resolveAppliedSort(filter.sort, 'name'),
+        activeCount: totalActive,
       },
     };
+  }
+
+  /** Cursor feed for infinite scroll (PrismaKit getManyCursor). */
+  handleGetFeed(cursor?: string, take = 20) {
+    return this.products.getManyCursor({
+      where: { isActive: true },
+      select: getProductSelect('general'),
+      orderBy: { id: 'asc' },
+      cursor: cursor ? { id: cursor } : undefined,
+      take,
+      setCache: true,
+    });
   }
 
   handleGetById(id: string) {
@@ -56,15 +78,12 @@ export class ProductService {
   }
 
   async handleUpdateById(id: string, dto: UpdateProductDto) {
-    const current = await this.products.getThrowById({
-      id,
-      select: getProductSelect('minimal'),
-    });
-    return this.products.updateById({
-      id,
+    return this.products.update({
+      where: { id },
       data: dto,
       select: getProductSelect('general'),
-      tags: [`category:${current.categoryId}`],
+      tags: (row) =>
+        row.categoryId ? [`category:${row.categoryId}`] : undefined,
     });
   }
 
