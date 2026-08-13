@@ -1,7 +1,7 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import type { PrismaClientLike } from '@prismakit/nestjs';
+import type { PrismaClientLike } from '@prismakit/core';
 import { PrismaKitModule } from '@prismakit/nestjs';
 import { CacheDebugInterceptor } from './common/interceptors/cache-debug.interceptor';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
@@ -50,25 +50,18 @@ const prismakitLogger = new Logger('PrismaKit');
         return {
           prisma: prisma as unknown as PrismaClientLike,
           cache: redis,
-          schemaPath: 'prisma/schema.prisma',
-          validateCompose: false,
           autoRegisterModels: true,
-          strictCachedRepos: true,
           compose: {
             maxDepth: 6,
-            parallel: true,
-            setCache: true,
           },
-          queryLog: {
+          telemetry: {
+            enabled: true,
             slowThreshold: 500,
             onSlowQuery: (event) => {
               prismakitLogger.warn(
                 `slow ${event.model}.${event.method}: ${event.durationMs}ms`,
               );
             },
-          },
-          telemetry: {
-            enabled: true,
             onEvent: (event) => {
               if (event.type === 'query.complete') return;
               const method = 'method' in event ? event.method : undefined;

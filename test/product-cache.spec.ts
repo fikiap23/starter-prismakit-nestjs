@@ -1,16 +1,14 @@
-import { createRepository } from '@prismakit/core';
+import {
+  clearPrismaMeta,
+  createRepository,
+  setPrismaMeta,
+} from '@prismakit/core';
 import { MemoryCacheAdapter } from '@prismakit/memory';
 
-const ProductScalarFieldEnum = {
-  id: 'id',
-  sku: 'sku',
-  name: 'name',
-  priceCents: 'priceCents',
-  categoryId: 'categoryId',
-  isActive: 'isActive',
-} as const;
-
-function createFakePrisma(store: { row: Record<string, unknown> | null; finds: number }) {
+function createFakePrisma(store: {
+  row: Record<string, unknown> | null;
+  finds: number;
+}) {
   return {
     product: {
       findUnique: async ({
@@ -34,7 +32,37 @@ function createFakePrisma(store: { row: Record<string, unknown> | null; finds: n
 }
 
 describe('Product cache hit/miss (MemoryCacheAdapter)', () => {
+  afterEach(() => {
+    clearPrismaMeta();
+  });
+
   it('misses then hits on the second getById', async () => {
+    setPrismaMeta({
+      product: {
+        clientKey: 'product',
+        modelName: 'Product',
+        dbTable: 'Product',
+        primaryKey: 'id',
+        scalarFields: {
+          id: 'id',
+          sku: 'sku',
+          name: 'name',
+          priceCents: 'priceCents',
+          categoryId: 'categoryId',
+          isActive: 'isActive',
+        },
+        columnMap: {
+          id: 'id',
+          sku: 'sku',
+          name: 'name',
+          priceCents: 'priceCents',
+          categoryId: 'categoryId',
+          isActive: 'isActive',
+        },
+        relations: {},
+      },
+    });
+
     const cache = new MemoryCacheAdapter({ prefix: 'starter-test' });
     const store = {
       row: {
@@ -49,7 +77,6 @@ describe('Product cache hit/miss (MemoryCacheAdapter)', () => {
     };
     const ProductRepo = createRepository({
       model: 'product',
-      scalarFields: ProductScalarFieldEnum,
       cache: { ttl: 60, defaultSetCache: true },
     });
     const products = new ProductRepo({

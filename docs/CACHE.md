@@ -10,7 +10,7 @@ Service → Repository → CacheAdapter (RedisService) → Prisma → PostgreSQL
 
 - Cached repos set `defaultSetCache: true` so user-facing reads cache by default.
 - Opt out with `setCache: false` on auth, uniqueness, JWT validate, and write-path checks.
-- The repository `cache` block is the source of truth — `cacheModels` is omitted (fail-open).
+- The repository `cache` block is the source of truth.
 - Redis fails open — if Redis is down, queries still hit Prisma.
 
 ## What is cached

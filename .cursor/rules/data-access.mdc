@@ -13,7 +13,7 @@ alwaysApply: true
 
 ## Required
 
-- **Reads/writes:** `*Repository` from `defineAppRepo`
+- **Reads/writes:** `*Repository` from `createRepository` / Nest `createDefineRepo` (`defineAppRepo`)
 - **Transactions:** `TransactionService.execTx` with `invalidate: 'none'` + `afterCommit` → `invalidateCache`
 - **ESLint:** `@prismakit/eslint-plugin` recommended config
 
@@ -22,4 +22,4 @@ alwaysApply: true
 - Inside `@prismakit/*` internals
 - Inside `**/repositories/**` only (via factory delegate)
 
-See [`AGENTS.md`](../../AGENTS.md), [`docs/CACHE.md`](../../docs/CACHE.md), and [`docs/CREATE_PRISMA_REPOSITORY.md`](../../docs/CREATE_PRISMA_REPOSITORY.md).
+See PrismaKit docs: `docs/RULES.md`, `docs/getting-started.md`, and `docs/README.md`.

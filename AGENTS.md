@@ -105,9 +105,9 @@ Do not edit `src/generated/prisma/`.
 - `schemaPath` defaults to `prisma/schema.prisma` (relation fields resolve from schema meta)
 - `autoRegisterModels: true` (ProductImage; Profile is an explicit cached provider)
 - `strictCachedRepos: true` (default) — boot fails if a `cache` repo class is missing from Nest `providers`, or listed in two modules' `providers`
-- `compose: { maxDepth: 6, parallel: true, setCache: true }`
-- Repo `cache` config is the source of truth (no `cacheModels` allowlist)
-- `queryLog.slowThreshold: 500` + `telemetry.onEvent` → Nest `Logger`
+- `compose: { maxDepth: 6 }` (parallel/setCache use kit defaults)
+- Repo `cache` config is the source of truth
+- `telemetry: { slowThreshold: 500, onSlowQuery, onEvent }` → Nest `Logger`
 - ESLint `prismakit.configs.recommended`; overrides only for `app.module.ts` + `infrastructure/prisma/**`
 
 ## Demo surface
